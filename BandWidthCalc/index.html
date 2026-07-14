@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Staging BW Calc</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BW Calc">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --card-bg-sec: #2c2c2e;
+            --accent: #0a84ff;
+            --text-main: #ffffff;
+            --text-sec: #8e8e93;
+            --green: #30d158;
+            --orange: #ff9f0a;
+            --red: #ff453a;
+            --cyan: #32ade6;
+            --border: #38383a;
+            
+            /* Dynamic Safe Area Padding for Notch / Dynamic Island / Home Indicator */
+            --safe-top: env(safe-area-inset-top, 47px); 
+            --safe-bottom: env(safe-area-inset-bottom, 34px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: calc(var(--safe-top) + 10px) 16px calc(76px + var(--safe-bottom)) 16px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-size: 13px;
+            font-weight: 600;
+            margin: 20px 0 10px 4px;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: -0.1px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 0.5px solid rgba(255,255,255,0.05);
+        }
+
+        .input-row, .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 0.5px solid var(--border);
+            min-height: 50px;
+        }
+
+        .input-row:last-child, .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .nested-row-container {
+            background-color: #141416;
+            border-bottom: 0.5px solid var(--border);
+        }
+        
+        .nested-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px 8px 32px;
+            font-size: 14px;
+            color: var(--text-sec);
+        }
+        .nested-row span:last-child {
+            font-family: monospace;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* 3-Column Protocol Matrices with Active Status LED Lights */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background-color: var(--border);
+            gap: 0.5px;
+        }
+        .matrix-col {
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .matrix-head {
+            padding: 10px 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 0.5px solid var(--border);
+            background-color: rgba(255,255,255,0.02);
+        }
+        .matrix-sub {
+            display: block;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-sec);
+            margin-top: 2px;
+        }
+        .matrix-cell {
+            padding: 12px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            min-height: 58px;
+        }
+        
+        /* Glowing LED Indicators */
+        .led-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-bottom: 4px;
+        }
+        .led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .led-green { background-color: var(--green); box-shadow: 0 0 8px var(--green); }
+        .led-red { background-color: var(--red); box-shadow: 0 0 8px var(--red); }
+        
+        .status-valid { background-color: rgba(48, 209, 88, 0.15); color: var(--green); }
+        .status-exceed { background-color: rgba(255, 69, 58, 0.15); color: var(--red); }
+        .cable-count { font-size: 11px; color: var(--text-sec); font-family: monospace; }
+
+        label {
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        input, select {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: right;
+            outline: none;
+            width: 55%;
+        }
+
+        select option {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:active { opacity: 0.8; }
+        .btn-sec { background-color: var(--card-bg-sec); color: var(--accent); }
+        .btn-disabled { background-color: var(--card-bg-sec); color: var(--text-sec); cursor: default; }
+
+        .hist-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-view {
+            background-color: rgba(10, 132, 255, 0.15);
+            color: var(--accent);
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-del {
+            background-color: rgba(255, 69, 58, 0.15);
+            color: var(--red);
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .page { display: none; animation: fadeIn 0.2s ease-in-out; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .val-highlight { font-size: 18px; font-weight: 700; color: var(--green); }
+        .val-raw { font-size: 18px; font-weight: 700; color: var(--cyan); font-family: monospace; }
+        
+        /* Resource Tier Badges */
+        .val-badge { padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 13px; font-family: monospace; letter-spacing: -0.3px; }
+        .badge-sl { background: rgba(10, 132, 255, 0.2); color: var(--accent); border: 0.5px solid rgba(10, 132, 255, 0.3); }
+        .badge-dl { background: rgba(255, 159, 10, 0.2); color: var(--orange); border: 0.5px solid rgba(255, 159, 10, 0.3); }
+        .badge-4k { background: rgba(48, 209, 88, 0.2); color: var(--green); border: 0.5px solid rgba(48, 209, 88, 0.3); }
+        .badge-8k { background: rgba(255, 69, 58, 0.2); color: var(--red); border: 0.5px solid rgba(255, 69, 58, 0.3); }
+        
+        .history-item {
+            padding: 16px;
+            border-bottom: 0.5px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .hist-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+        .hist-spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 12px;
+            font-size: 12px;
+            color: var(--text-sec);
+            margin-top: 6px;
+            background: rgba(255,255,255,0.03);
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 0.5px solid rgba(255,255,255,0.05);
+        }
+        .hist-spec-val { font-weight: 600; color: var(--text-main); font-family: monospace; }
+        
+        .min-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            background-color: rgba(10, 132, 255, 0.15);
+            color: var(--accent);
+        }
+
+        /* iOS Native Modal Popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-box {
+            background-color: #2c2c2e;
+            width: 280px;
+            border-radius: 14px;
+            text-align: center;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transform: scale(0.95);
+            transition: transform 0.15s ease;
+        }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-title { font-size: 17px; font-weight: 600; padding: 18px 16px 6px 16px; color: var(--text-main); }
+        .modal-text { font-size: 13px; color: var(--text-sec); padding: 0 16px 18px 16px; line-height: 18px; }
+        .modal-actions { border-top: 0.5px solid var(--border); display: flex; }
+        .modal-btn { flex: 1; padding: 12px; font-size: 17px; background: transparent; border: none; cursor: pointer; color: var(--accent); }
+        .modal-btn:active { background-color: rgba(255,255,255,0.05); }
+        .modal-btn-destruct { color: var(--red); font-weight: 600; border-left: 0.5px solid var(--border); }
+
+        .tab-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: calc(56px + var(--safe-bottom));
+            background-color: rgba(28, 28, 30, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.5px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: var(--safe-bottom);
+            z-index: 1000;
+        }
+
+        .tab-item {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: var(--text-sec); font-size: 11px; font-weight: 500; cursor: pointer;
+        }
+        .tab-item.active { color: var(--accent); }
+        .tab-icon { font-size: 20px; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE 1: INPUT PARAMETERS -->
+    <div id="page1" class="page active">
+        <h1>Signal Setup</h1>
+        
+        <h2>Resolution & Geometry</h2>
+        <div class="card">
+            <div class="input-row">
+                <label for="width">Width (Pixels)</label>
+                <input type="number" id="width" value="3840" pattern="[0-9]*">
+            </div>
+            <div class="input-row">
+                <label for="height">Height (Pixels)</label>
+                <input type="number" id="height" value="2160" pattern="[0-9]*">
+            </div>
+        </div>
+
+        <h2>Timing & Color Engine</h2>
+        <div class="card">
+            <div class="input-row">
+                <label for="fps">Refresh Rate</label>
+                <select id="fps">
+                    <option value="23.976">23.98 Hz (Cinema)</option>
+                    <option value="24">24.00 Hz</option>
+                    <option value="25">25.00 Hz (PAL)</option>
+                    <option value="29.97">29.97 Hz (NTSC)</option>
+                    <option value="30">30.00 Hz</option>
+                    <option value="50">50.00 Hz (PAL)</option>
+                    <option value="59.94">59.94 Hz (NTSC)</option>
+                    <option value="60" selected>60.00 Hz (Standard)</option>
+                    <option value="120">120.00 Hz (High Frame)</option>
+                    <option value="144">144.00 Hz (Gaming)</option>
+                    <option value="240">240.00 Hz (Ultra High)</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <label for="depth">Color Bit Depth</label>
+                <select id="depth">
+                    <option value="8" selected>8-Bit (24bpp - RGB 4:4:4)</option>
+                    <option value="10">10-Bit (30bpp - HDR ProAV)</option>
+                    <option value="12">12-Bit (36bpp - Deep Color)</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <label for="blanking">Blanking Standard</label>
+                <select id="blanking">
+                    <option value="cea">CEA/CTA-861 (Standard HDTV)</option>
+                    <option value="vesa_std">VESA CVT Standard (~25% Ohd)</option>
+                    <option value="cvt1">VESA CVT-RB v1</option>
+                    <option value="cvt2" selected>VESA CVT-RB v2</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn" onclick="calculateAndNavigate()">Calculate Bandwidth & EDID</button>
+        <button class="btn btn-sec" onclick="switchPage('page3')" style="margin-top: 12px;">View Saved History</button>
+    </div>
+
+    <!-- PAGE 2: RESULTS & ACTIVE LED TABLES -->
+    <div id="page2" class="page">
+        <h1>Transport Spec</h1>
+        
+        <h2>Required Bandwidth</h2>
+        <div class="card">
+            <div class="result-row">
+                <div>
+                    <div style="font-weight: 600;">Raw Cable Bandwidth</div>
+                    <div style="font-size: 12px; color: var(--text-sec);">Gross bit rate (Calculated with 8b/10b 80% Eff)</div>
+                </div>
+                <span id="res-raw" class="val-raw">0.00 Gbps</span>
+            </div>
+            <div class="result-row">
+                <div>
+                    <div style="font-weight: 600;">Max Video Payload</div>
+                    <div style="font-size: 12px; color: var(--text-sec);">Active uncompressed RGB video stream</div>
+                </div>
+                <span id="res-payload" class="val-highlight">0.00 Gbps</span>
+            </div>
+            <div class="result-row" style="background-color: rgba(255,255,255,0.015);">
+                <div>
+                    <div style="font-weight: 600;">Staging Resource Tier</div>
+                    <div style="font-size: 12px; color: var(--text-sec);">Canvas routing & VPU capacity allocation</div>
+                </div>
+                <span id="res-resource" class="val-badge badge-4k">4K Resource</span>
+            </div>
+        </div>
+
+        <h2>HDMI Protocol Status Matrix</h2>
+        <div class="card matrix-grid">
+            <div class="matrix-col">
+                <div class="matrix-head">HDMI 1.4<span class="matrix-sub">10.2G Limit</span></div>
+                <div class="matrix-cell" id="hdmi-14-cell"></div>
+            </div>
+            <div class="matrix-col">
+                <div class="matrix-head">HDMI 2.0<span class="matrix-sub">18.0G Limit</span></div>
+                <div class="matrix-cell" id="hdmi-20-cell"></div>
+            </div>
+            <div class="matrix-col">
+                <div class="matrix-head">HDMI 2.1<span class="matrix-sub">48.0G (FRL) Limit</span></div>
+                <div class="matrix-cell" id="hdmi-21-cell"></div>
+            </div>
+        </div>
+
+        <h2>DisplayPort Protocol Status Matrix</h2>
+        <div class="card matrix-grid">
+            <div class="matrix-col">
+                <div class="matrix-head">DP 1.2<span class="matrix-sub">21.6G (HBR2)</span></div>
+                <div class="matrix-cell" id="dp-12-cell"></div>
+            </div>
+            <div class="matrix-col">
+                <div class="matrix-head">DP 1.4<span class="matrix-sub">32.4G (HBR3)</span></div>
+                <div class="matrix-cell" id="dp-14-cell"></div>
+            </div>
+            <div class="matrix-col">
+                <div class="matrix-head">DP 2.0 / 2.1<span class="matrix-sub">80.0G (UHBR20)</span></div>
+                <div class="matrix-cell" id="dp-20-cell"></div>
+            </div>
+        </div>
+
+        <h2>Detailed EDID Timing Parameters</h2>
+        <div class="card">
+            <div class="result-row">
+                <span>Pixel Clock</span>
+                <span id="edid-clk" style="font-weight: 700; color: var(--orange); font-size: 17px;">0.00 MHz</span>
+            </div>
+            
+            <div class="result-row" style="background-color: rgba(255,255,255,0.02)">
+                <span style="font-weight: 600;">Horizontal Timings</span>
+                <span id="edid-htot" style="font-weight: 600;">0 px total</span>
+            </div>
+            <div class="nested-row-container">
+                <div class="nested-row"><span>Active Pixels</span><span id="edid-hact">0</span></div>
+                <div class="nested-row"><span>Front Porch (H-FP)</span><span id="edid-hfp">0</span></div>
+                <div class="nested-row"><span>Sync Width (H-SW)</span><span id="edid-hsw">0</span></div>
+                <div class="nested-row"><span>Back Porch (H-BP)</span><span id="edid-hbp">0</span></div>
+                <div class="nested-row"><span>H-Sync Polarity</span><span id="edid-hpol">Negative (-)</span></div>
+            </div>
+
+            <div class="result-row" style="background-color: rgba(255,255,255,0.02)">
+                <span style="font-weight: 600;">Vertical Timings</span>
+                <span id="edid-vtot" style="font-weight: 600;">0 lines total</span>
+            </div>
+            <div class="nested-row-container">
+                <div class="nested-row"><span>Active Lines</span><span id="edid-vact">0</span></div>
+                <div class="nested-row"><span>Front Porch (V-FP)</span><span id="edid-vfp">0</span></div>
+                <div class="nested-row"><span>Sync Width (V-SW)</span><span id="edid-vsw">0</span></div>
+                <div class="nested-row"><span>Back Porch (V-BP)</span><span id="edid-vbp">0</span></div>
+                <div class="nested-row"><span>V-Sync Polarity</span><span id="edid-vpol">Positive (+)</span></div>
+            </div>
+
+            <div class="result-row">
+                <span>Total Blanking Overhead</span>
+                <span id="edid-ohd" style="color: var(--text-sec);">0%</span>
+            </div>
+        </div>
+
+        <button id="btn-save" class="btn" onclick="commitSave()" style="background-color: var(--green);">Commit & Save to History</button>
+        <button class="btn btn-sec" onclick="switchPage('page1')" style="margin-top: 12px;">Recalculate New</button>
+    </div>
+
+    <!-- PAGE 3: SAVED HISTORY -->
+    <div id="page3" class="page">
+        <h1>Saved Timings</h1>
+        <div id="history-list" class="card" style="border: none; background: transparent;">
+            <!-- Dynamically populated -->
+        </div>
+        <button class="btn" onclick="switchPage('page1')" style="margin-top: 10px;">+ New Calculation</button>
+    </div>
+
+    <!-- STICKY BOTTOM TAB BAR -->
+    <div class="tab-bar">
+        <div class="tab-item active" id="tab-page1" onclick="switchPage('page1')">
+            <div class="tab-icon">⚙️</div>
+            <div>Setup</div>
+        </div>
+        <div class="tab-item" id="tab-page2" onclick="switchPage('page2')">
+            <div class="tab-icon">📊</div>
+            <div>Results</div>
+        </div>
+        <div class="tab-item" id="tab-page3" onclick="switchPage('page3')">
+            <div class="tab-icon">💾</div>
+            <div>History</div>
+        </div>
+    </div>
+
+    <!-- iOS NATIVE CONFIRMATION MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">Delete Saved Timing?</div>
+            <div class="modal-text">This will permanently remove this resolution from your saved staging history.</div>
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="closeModal()">Cancel</button>
+                <button id="confirm-del-btn" class="modal-btn modal-btn-destruct">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCalc = null;
+        let pendingDeleteId = null;
+
+        const BLANKING_NAMES = {
+            'cea': 'CEA/CTA-861 HDTV',
+            'vesa_std': 'VESA CVT Standard',
+            'cvt1': 'VESA CVT-RB v1',
+            'cvt2': 'VESA CVT-RB v2'
+        };
+
+        function renderLedCell(valid, count) {
+            if (valid && count === 1) {
+                return `
+                    <div class="led-indicator status-valid">
+                        <span class="led led-green"></span>VALID
+                    </div>
+                    <span class="cable-count">1x Cable OK</span>
+                `;
+            } else {
+                return `
+                    <div class="led-indicator status-exceed">
+                        <span class="led led-red"></span>EXCEEDS
+                    </div>
+                    <span class="cable-count">${count}x Cables Req.</span>
+                `;
+            }
+        }
+
+        function calculateTiming(w, h, fps, depth, blanking) {
+            let hFp, hSw, hBp, hTotal;
+            let vFp, vSw, vBp, vTotal;
+            let hPol, vPol;
+
+            if (blanking === 'cvt2') {
+                hFp = 8; hSw = 32; hBp = 40; hTotal = w + hFp + hSw + hBp;
+                vFp = 8; vSw = 8; vBp = 16; vTotal = h + vFp + vSw + vBp;
+                hPol = "+"; vPol = "-";
+            } else if (blanking === 'cvt1') {
+                hFp = 48; hSw = 32; hBp = 80; hTotal = w + hFp + hSw + hBp;
+                vFp = 3; vSw = 4;
+                let vBlankLines = Math.round(Math.max(46, h * 0.03));
+                vBp = vBlankLines - vFp - vSw;
+                vTotal = h + vBlankLines;
+                hPol = "+"; vPol = "-";
+            } else if (blanking === 'vesa_std') {
+                hFp = Math.round(w * 0.03); hSw = Math.round(w * 0.08); hBp = Math.round(w * 0.14); hTotal = w + hFp + hSw + hBp;
+                vFp = 3; vSw = 4; vBp = 38; vTotal = h + vFp + vSw + vBp;
+                hPol = "-"; vPol = "+";
+            } else {
+                hFp = Math.round(w * 0.045); hSw = Math.round(w * 0.023); hBp = Math.round(w * 0.132); hTotal = w + hFp + hSw + hBp;
+                vFp = 3; vSw = 5; vBp = Math.round(h * 0.045); vTotal = h + vFp + vSw + vBp;
+                hPol = "+"; vPol = "+";
+            }
+
+            const pixelClockHz = hTotal * vTotal * fps;
+            const pixelClockMHz = pixelClockHz / 1e6;
+            
+            const payloadGbps = (pixelClockHz * 3 * depth) / 1e9;
+            const rawGbps = payloadGbps / 0.80;
+            
+            const activePixels = w * h;
+            const totalPixels = hTotal * vTotal;
+            const overheadPct = ((totalPixels - activePixels) / activePixels) * 100;
+
+            const hdmi14Valid = payloadGbps <= 8.16 && pixelClockMHz <= 340;
+            const hdmi14Cnt = Math.ceil(payloadGbps / 8.16);
+            
+            const hdmi20Valid = payloadGbps <= 14.40 && pixelClockMHz <= 600;
+            const hdmi20Cnt = Math.ceil(payloadGbps / 14.40);
+            
+            const hdmi21Valid = payloadGbps <= 42.60;
+            const hdmi21Cnt = Math.ceil(payloadGbps / 42.60);
+
+            const dp12Valid = payloadGbps <= 17.28 && pixelClockMHz <= 720;
+            const dp12Cnt = Math.ceil(payloadGbps / 17.28);
+            
+            const dp14Valid = payloadGbps <= 25.92;
+            const dp14Cnt = Math.ceil(payloadGbps / 25.92);
+            
+            const dp20Valid = payloadGbps <= 77.37;
+            const dp20Cnt = Math.ceil(payloadGbps / 77.37);
+
+            let resourceTier = "Single-Link (SL)";
+            let badgeClass = "badge-sl";
+
+            if (payloadGbps > 28.80 || pixelClockMHz > 1200 || w > 8192) {
+                resourceTier = "8K Resource";
+                badgeClass = "badge-8k";
+            } else if (payloadGbps > 14.40 || pixelClockMHz > 600 || w > 4096) {
+                resourceTier = "2x 4K / 8K Resource";
+                badgeClass = "badge-8k";
+            } else if (payloadGbps > 8.16 || pixelClockMHz > 330 || w > 2560) {
+                resourceTier = "4K Resource";
+                badgeClass = "badge-4k";
+            } else if (payloadGbps > 3.96 || pixelClockMHz > 165 || w > 1920) {
+                resourceTier = "Dual-Link (DL)";
+                badgeClass = "badge-dl";
+            }
+
+            let minQual = "Requires Multi-Cable / DSC";
+            if (hdmi14Valid || dp12Valid) minQual = "HDMI 1.4 / DP 1.2";
+            else if (hdmi20Valid || dp12Valid) minQual = "HDMI 2.0 / DP 1.2";
+            else if (hdmi20Valid || dp14Valid) minQual = "HDMI 2.0 / DP 1.4";
+            else if (hdmi21Valid || dp14Valid) minQual = "HDMI 2.1 / DP 1.4";
+            else if (hdmi21Valid || dp20Valid) minQual = "HDMI 2.1 / DP 2.1";
+
+            return {
+                w, h, fps, depth, blanking, blankingName: BLANKING_NAMES[blanking] || blanking,
+                hFp, hSw, hBp, hTotal, hPol,
+                vFp, vSw, vBp, vTotal, vPol,
+                pixelClockMHz, payloadGbps, rawGbps, overheadPct,
+                hdmi14Valid, hdmi14Cnt, hdmi20Valid, hdmi20Cnt, hdmi21Valid, hdmi21Cnt,
+                dp12Valid, dp12Cnt, dp14Valid, dp14Cnt, dp20Valid, dp20Cnt, 
+                minQual, resourceTier, badgeClass
+            };
+        }
+
+        function populatePage2(calc, fromHistory = false) {
+            document.getElementById('res-raw').innerText = calc.rawGbps.toFixed(2) + " Gbps";
+            document.getElementById('res-payload').innerText = calc.payloadGbps.toFixed(2) + " Gbps";
+            
+            const resEl = document.getElementById('res-resource');
+            resEl.innerText = calc.resourceTier;
+            resEl.className = "val-badge " + calc.badgeClass;
+            
+            document.getElementById('hdmi-14-cell').innerHTML = renderLedCell(calc.hdmi14Valid, calc.hdmi14Cnt);
+            document.getElementById('hdmi-20-cell').innerHTML = renderLedCell(calc.hdmi20Valid, calc.hdmi20Cnt);
+            document.getElementById('hdmi-21-cell').innerHTML = renderLedCell(calc.hdmi21Valid, calc.hdmi21Cnt);
+
+            document.getElementById('dp-12-cell').innerHTML = renderLedCell(calc.dp12Valid, calc.dp12Cnt);
+            document.getElementById('dp-14-cell').innerHTML = renderLedCell(calc.dp14Valid, calc.dp14Cnt);
+            document.getElementById('dp-20-cell').innerHTML = renderLedCell(calc.dp20Valid, calc.dp20Cnt);
+            
+            document.getElementById('edid-clk').innerText = calc.pixelClockMHz.toFixed(2) + " MHz";
+            
+            document.getElementById('edid-htot').innerText = calc.hTotal + " px total";
+            document.getElementById('edid-hact').innerText = calc.w;
+            document.getElementById('edid-hfp').innerText = calc.hFp;
+            document.getElementById('edid-hsw').innerText = calc.hSw;
+            document.getElementById('edid-hbp').innerText = calc.hBp;
+            document.getElementById('edid-hpol').innerText = calc.hPol === "+" ? "Positive (+)" : "Negative (-)";
+
+            document.getElementById('edid-vtot').innerText = calc.vTotal + " lines total";
+            document.getElementById('edid-vact').innerText = calc.h;
+            document.getElementById('edid-vfp').innerText = calc.vFp;
+            document.getElementById('edid-vsw').innerText = calc.vSw;
+            document.getElementById('edid-vbp').innerText = calc.vBp;
+            document.getElementById('edid-vpol').innerText = calc.vPol === "+" ? "Positive (+)" : "Negative (-)";
+
+            document.getElementById('edid-ohd').innerText = "+" + calc.overheadPct.toFixed(1) + "%";
+
+            const saveBtn = document.getElementById('btn-save');
+            if (fromHistory) {
+                saveBtn.innerText = "✓ Already Saved in History";
+                saveBtn.className = "btn btn-disabled";
+                saveBtn.onclick = null;
+            } else {
+                saveBtn.innerText = "Commit & Save to History";
+                saveBtn.className = "btn";
+                saveBtn.style.backgroundColor = "var(--green)";
+                saveBtn.onclick = commitSave;
+            }
+        }
+
+        function calculateAndNavigate() {
+            const w = parseInt(document.getElementById('width').value) || 1920;
+            const h = parseInt(document.getElementById('height').value) || 1080;
+            const fps = parseFloat(document.getElementById('fps').value);
+            const depth = parseInt(document.getElementById('depth').value);
+            const blanking = document.getElementById('blanking').value;
+
+            currentCalc = calculateTiming(w, h, fps, depth, blanking);
+            populatePage2(currentCalc, false);
+            switchPage('page2');
+        }
+
+        function loadFromHistory(id) {
+            const history = JSON.parse(localStorage.getItem('bw_calc_history') || '[]');
+            const savedItem = history.find(item => item.id === id);
+            if (!savedItem) return;
+
+            currentCalc = savedItem;
+            populatePage2(currentCalc, true);
+            switchPage('page2');
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            document.getElementById('tab-' + pageId).classList.add('active');
+
+            if (pageId === 'page3') renderHistory();
+            window.scrollTo(0, 0);
+        }
+
+        function commitSave() {
+            if (!currentCalc || document.getElementById('btn-save').classList.contains('btn-disabled')) return;
+            let history = JSON.parse(localStorage.getItem('bw_calc_history') || '[]');
+            currentCalc.id = Date.now();
+            history.unshift(currentCalc);
+            localStorage.setItem('bw_calc_history', JSON.stringify(history));
+            
+            const saveBtn = document.getElementById('btn-save');
+            saveBtn.innerText = "✓ Already Saved in History";
+            saveBtn.className = "btn btn-disabled";
+            saveBtn.onclick = null;
+
+            switchPage('page3');
+        }
+
+        function promptDelete(id) {
+            pendingDeleteId = id;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('active');
+            document.getElementById('confirm-del-btn').onclick = () => {
+                deleteItem(pendingDeleteId);
+                closeModal();
+            };
+        }
+
+        function closeModal() {
+            pendingDeleteId = null;
+            document.getElementById('delete-modal').classList.remove('active');
+        }
+
+        function deleteItem(id) {
+            let history = JSON.parse(localStorage.getItem('bw_calc_history') || '[]');
+            history = history.filter(item => item.id !== id);
+            localStorage.setItem('bw_calc_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const listEl = document.getElementById('history-list');
+            const history = JSON.parse(localStorage.getItem('bw_calc_history') || '[]');
+
+            if (history.length === 0) {
+                listEl.innerHTML = '<div style="padding: 32px; text-align: center; color: var(--text-sec); background: var(--card-bg); border-radius: 12px;">No saved configurations.<br>Commit active solutions inside the Transport tab.</div>';
+                return;
+            }
+
+            listEl.innerHTML = history.map(item => `
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="history-item">
+                        <div style="flex: 1; padding-right: 8px;">
+                            <div class="hist-title">${item.w} × ${item.h} @ ${item.fps.toFixed(2)} Hz</div>
+                            
+                            <div class="hist-spec-grid">
+                                <div>Bit Depth: <span class="hist-spec-val">${item.depth}-Bit</span></div>
+                                <div>Blanking: <span class="hist-spec-val">${item.blankingName}</span></div>
+                                <div>Max Raw: <span class="hist-spec-val" style="color: var(--cyan);">${item.rawGbps.toFixed(2)}G</span></div>
+                                <div>Payload: <span class="hist-spec-val" style="color: var(--green);">${item.payloadGbps.toFixed(2)}G</span></div>
+                                <div style="grid-column: span 2; border-top: 0.5px solid rgba(255,255,255,0.08); padding-top: 4px; margin-top: 2px;">
+                                    Pixel Clock: <span class="hist-spec-val" style="color: var(--orange);">${item.pixelClockMHz.toFixed(2)} MHz</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                                <span class="min-badge" style="margin-top: 0;">Min Port: ${item.minQual}</span>
+                                <span class="val-badge ${item.badgeClass}" style="font-size: 11px; padding: 4px 8px;">${item.resourceTier}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hist-actions" style="flex-direction: column; gap: 10px;">
+                            <button class="btn-view" style="width: 100%;" onclick="loadFromHistory(${item.id})">View Spec ❯</button>
+                            <button class="btn-del" style="width: 100%;" onclick="promptDelete(${item.id})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('delete-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        const avLogoSvg = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231c1c1e'/><stop offset='100%' stop-color='%230a0a0c'/></linearGradient><linearGradient id='av' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2300f2fe'/><stop offset='50%' stop-color='%234facfe'/><stop offset='100%' stop-color='%2300ff87'/></linearGradient></defs><rect width='512' height='512' rx='115' fill='url(%23bg)'/><rect width='508' height='508' x='2' y='2' rx='113' fill='none' stroke='%2338383a' stroke-width='4'/><path d='M130 360 L215 150 L300 360 M165 285 L265 285' fill='none' stroke='url(%23av)' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/><path d='M250 150 L335 360 L420 150' fill='none' stroke='%2330d158' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/><circle cx='390' cy='360' r='18' fill='%23ff0055'/><circle cx='390' cy='360' r='28' fill='none' stroke='%23ff0055' stroke-width='6' opacity='0.5'/></svg>`;
+
+        const touchIconLink = document.createElement('link');
+        touchIconLink.rel = 'apple-touch-icon';
+        touchIconLink.href = avLogoSvg;
+        document.head.appendChild(touchIconLink);
+
+        const manifestJSON = {
+            "name": "Staging Bandwidth Calculator Pro",
+            "short_name": "BW Calc",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#000000",
+            "theme_color": "#000000",
+            "icons": [{
+                "src": avLogoSvg,
+                "sizes": "512x512",
+                "type": "image/svg+xml",
+                "purpose": "any maskable"
+            }]
+        };
+        const blobManifest = new Blob([JSON.stringify(manifestJSON)], {type: 'application/json'});
+        document.head.appendChild(Object.assign(document.createElement('link'), {rel: 'manifest', href: URL.createObjectURL(blobManifest)}));
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+            `;
+            const blobSW = new Blob([swCode], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(blobSW)).catch(() => {});
+        }
+    </script>
+</body>
+</html>
