@@ -1,56 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="armor-v3" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#181a26"/><stop offset="100%" stop-color="#08090e"/>
-    </linearGradient>
-    <linearGradient id="plate-v3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#121420"/><stop offset="100%" stop-color="#080910"/>
-    </linearGradient>
-    <filter id="glow-v3" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
-  </defs>
-  
-  <rect width="512" height="512" rx="115" fill="url(#armor-v3)"/>
-  <rect width="500" height="500" x="6" y="6" rx="109" fill="none" stroke="#282c42" stroke-width="6"/>
-  
-  <g fill="#06070c" stroke="#3a4058" stroke-width="3">
-    <circle cx="64" cy="64" r="14"/><circle cx="64" cy="64" r="6" fill="#181a26"/>
-    <circle cx="448" cy="64" r="14"/><circle cx="448" cy="64" r="6" fill="#181a26"/>
-    <circle cx="64" cy="448" r="14"/><circle cx="64" cy="448" r="6" fill="#181a26"/>
-    <circle cx="448" cy="448" r="14"/><circle cx="448" cy="448" r="6" fill="#181a26"/>
-  </g>
-  
-  <rect x="48" y="86" width="416" height="340" rx="18" fill="url(#plate-v3)" stroke="#040508" stroke-width="5"/>
-  <rect x="51" y="89" width="410" height="334" rx="15" fill="none" stroke="#1f2436" stroke-width="2"/>
-
-  <!-- Solid Royal Blue Banner -->
-  <path d="M 48 104 Q 48 88, 64 88 L 448 88 Q 464 88, 464 104 L 464 146 L 48 146 Z" fill="#0044cc"/>
-  <text x="256" y="127" font-family="Impact, 'Arial Black', -apple-system, sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="6">PRO AV</text>
-  
-  <!-- REZolator: Sky Blue REZ + White olator -->
-  <text x="256" y="232" font-family="-apple-system, BlinkMacSystemFont, Impact, 'Arial Black', sans-serif" font-size="64" font-weight="900" text-anchor="middle" letter-spacing="1" filter="drop-shadow(0px 4px 8px rgba(0,0,0,0.9))">
-    <tspan fill="#4facfe">REZ</tspan><tspan fill="#ffffff">olator</tspan>
-  </text>
-
-  <!-- Sapphire to Sky Blue LED Meter -->
-  <g transform="translate(86, 264)">
-    <rect x="0" y="0" width="28" height="14" rx="2" fill="#001b48" filter="url(#glow-v3)"/>
-    <rect x="34" y="0" width="28" height="14" rx="2" fill="#00246b" filter="url(#glow-v3)"/>
-    <rect x="68" y="0" width="28" height="14" rx="2" fill="#00246b" filter="url(#glow-v3)"/>
-    <rect x="102" y="0" width="28" height="14" rx="2" fill="#003580" filter="url(#glow-v3)"/>
-    <rect x="136" y="0" width="28" height="14" rx="2" fill="#003580" filter="url(#glow-v3)"/>
-    <rect x="170" y="0" width="28" height="14" rx="2" fill="#004fd6" filter="url(#glow-v3)"/>
-    <rect x="204" y="0" width="28" height="14" rx="2" fill="#004fd6" filter="url(#glow-v3)"/>
-    <rect x="238" y="0" width="28" height="14" rx="2" fill="#3388ff" filter="url(#glow-v3)"/>
-    <rect x="272" y="0" width="28" height="14" rx="2" fill="#4facfe" filter="url(#glow-v3)"/>
-    <rect x="306" y="0" width="28" height="14" rx="2" fill="#4facfe" opacity="0.25"/>
-  </g>
-
-  <rect x="70" y="304" width="372" height="84" rx="10" fill="#04050a" stroke="#0044cc" stroke-width="2.5"/>
-  <text x="256" y="340" font-family="monospace, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#4facfe" text-anchor="middle" letter-spacing="3">BANDWIDTH</text>
-  <text x="256" y="372" font-family="monospace, -apple-system, sans-serif" font-size="24" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="4">CALCULATOR</text>
-  
-  <text x="256" y="412" font-family="monospace" font-size="12" font-weight="600" fill="#3f486c" text-anchor="middle" letter-spacing="3">EDID // FRL // TMDS // SPEC 2.0</text>
-  <circle cx="90" cy="408" r="4" fill="#1f2436"/><circle cx="422" cy="408" r="4" fill="#1f2436"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <path d="M512,115L512,397C512,460.47 460.47,512 397,512L115,512C51.53,512 0,460.47 0,397L0,115C0,51.53 51.53,0 115,0L397,0C460.47,0 512,51.53 512,115Z" style="fill:url(#_Linear1);"/>
+    <path d="M506,115L506,397C506,457.159 457.159,506 397,506L115,506C54.841,506 6,457.159 6,397L6,115C6,54.841 54.841,6 115,6L397,6C457.159,6 506,54.841 506,115Z" style="fill:none;stroke:rgb(34,48,62);stroke-width:8px;"/>
+    <g transform="matrix(1,0,0,1,251.05,267)">
+        <text x="-191.833px" y="0px" style="font-family:'Impact', sans-serif;font-stretch:condensed;font-size:105px;fill:rgb(0,200,255);">R<tspan x="-137.383px -95.852px " y="0px 0px ">EZ</tspan></text>
+        <text x="-56.27px" y="0px" style="font-family:'Impact', sans-serif;font-stretch:condensed;font-size:105px;fill:white;">o<tspan x="-4.691px 21.971px 72.781px 102.673px 154.253px " y="0px 0px 0px 0px 0px ">lator</tspan></text>
+    </g>
+    <g transform="matrix(1,0,0,1,66,300)">
+        <path d="M46,4L46,20C46,22.208 44.208,24 42,24L4,24C1.792,24 0,22.208 0,20L0,4C0,1.792 1.792,0 4,0L42,0C44.208,0 46,1.792 46,4Z" style="fill:rgb(0,136,255);"/>
+        <path d="M100,4L100,20C100,22.208 98.208,24 96,24L58,24C55.792,24 54,22.208 54,20L54,4C54,1.792 55.792,0 58,0L96,0C98.208,0 100,1.792 100,4Z" style="fill:rgb(0,180,216);"/>
+        <path d="M154,4L154,20C154,22.208 152.208,24 150,24L112,24C109.792,24 108,22.208 108,20L108,4C108,1.792 109.792,0 112,0L150,0C152.208,0 154,1.792 154,4Z" style="fill:rgb(0,212,255);"/>
+        <path d="M208,4L208,20C208,22.208 206.208,24 204,24L166,24C163.792,24 162,22.208 162,20L162,4C162,1.792 163.792,0 166,0L204,0C206.208,0 208,1.792 208,4Z" style="fill:rgb(72,202,228);"/>
+        <path d="M262,4L262,20C262,22.208 260.208,24 258,24L220,24C217.792,24 216,22.208 216,20L216,4C216,1.792 217.792,0 220,0L258,0C260.208,0 262,1.792 262,4Z" style="fill:rgb(144,224,239);"/>
+        <path d="M316,4L316,20C316,22.208 314.208,24 312,24L274,24C271.792,24 270,22.208 270,20L270,4C270,1.792 271.792,0 274,0L312,0C314.208,0 316,1.792 316,4Z" style="fill:white;fill-opacity:0.3;"/>
+        <path d="M370,4L370,20C370,22.208 368.208,24 366,24L328,24C325.792,24 324,22.208 324,20L324,4C324,1.792 325.792,0 328,0L366,0C368.208,0 370,1.792 370,4Z" style="fill:white;fill-opacity:0.1;"/>
+    </g>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0,512,-512,0,0,0)"><stop offset="0" style="stop-color:rgb(24,26,34);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(8,10,14);stop-opacity:1"/></linearGradient>
+    </defs>
 </svg>
